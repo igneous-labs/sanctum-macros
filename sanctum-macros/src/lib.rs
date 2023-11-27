@@ -28,7 +28,8 @@ pub fn declare_program_keys(input: TokenStream) -> TokenStream {
 
     let mut res = quote! {
         pub const ID_STR: &str = #prog_id_str_lit;
-        pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array([#(#prog_id_lit_bytes,)*]);
+        pub const ID_BYTES: [u8; 32] = [#(#prog_id_lit_bytes,)*];
+        pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(ID_BYTES);
     };
     for static_pda in static_pdas {
         res.extend(static_pda_gen(&static_pda));
@@ -46,6 +47,7 @@ fn static_pda_gen(
 ) -> proc_macro2::TokenStream {
     let name_prefix = name.to_shouty_snake_case();
 
+    let id_bytes_ident = format_ident!("{name_prefix}_ID_BYTES");
     let id_ident = format_ident!("{name_prefix}_ID");
     let id_str_ident = format_ident!("{name_prefix}_ID_STR");
     let seed_ident = format_ident!("{name_prefix}_SEED");
@@ -59,7 +61,8 @@ fn static_pda_gen(
     quote! {
         pub const #seed_ident: &[u8] = #seed;
         pub const #bump_ident: u8 = #bump_lit;
-        pub const #id_ident: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array([#(#id_lit_bytes,)*]);
+        pub const #id_bytes_ident: [u8; 32] = [#(#id_lit_bytes,)*];
+        pub const #id_ident: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(#id_bytes_ident);
         pub const #id_str_ident: &str = #id_str_lit;
     }
 }
