@@ -1,7 +1,16 @@
 [package]
 name = "sanctum-macros"
+description = "Sanctum Solana Macros"
 version = "1.0.0"
 edition = "2021"
+authors = ["sanctum"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/igneous-labs/sanctum-macros.git"
+readme = "README.md"
+keywords = ["sanctum", "solana", "proc-macro", "codegen", "PDA"]
+categories = ["rust-patterns"]
+
+include = ["/src", "/README.md"]
 
 [lib]
 proc-macro = true
@@ -10,5 +19,5 @@ proc-macro = true
 heck = ">=0.1"
 proc-macro2 = "^1"
 quote = "^1"
-solana-program = { version = "*" }
+solana-program = { workspace = true }
 syn = "^2"

@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 use heck::ToShoutySnakeCase;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
