@@ -26,7 +26,6 @@ declare_program_keys!(
 expands to
 
 ```rust ignore
-
 pub const ID_STR: &str = "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ";
 pub const ID_BYTES: [u8; 32] = [121, 161, 186, 2, 16, 170, 248, 125, 201, 230, 113, 160, 74, 35, 69, 149, 10, 116, 97, 215, 244, 204, 210, 189, 7, 112, 233, 119, 14, 109, 226, 43];
 pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(ID_BYTES);
