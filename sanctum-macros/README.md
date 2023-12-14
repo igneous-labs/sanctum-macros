@@ -48,7 +48,7 @@ pub const EMPTY_KEBAB_ID_STR: &str = "B5SqYyds9eLeX5mK4uycKGgZHft1URCbTzU6LoWhCV
 Create a `Pubkey` with [`Pubkey::create_with_seed`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_with_seed).
 
 ```rust ignore
-// args: (name of const, base, seed, owner)
+// args: (base, seed, owner)
 create_with_seed!(
     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
     "seed",
