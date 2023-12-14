@@ -1,5 +1,6 @@
-use std::str::FromStr;
-
+use heck::ToShoutySnakeCase;
+use proc_macro2::Span;
+use quote::{format_ident, quote};
 use solana_program::pubkey::Pubkey;
 use syn::{
     bracketed,
@@ -7,30 +8,32 @@ use syn::{
     punctuated::Punctuated,
     spanned::Spanned,
     token::Comma,
-    Expr, ExprLit, ExprTuple, Lit, LitByteStr, LitStr, Token,
+    Expr, ExprLit, ExprTuple, Lit, LitByte, LitByteStr, LitStr, Token,
 };
 
+use crate::utils::{gen_pubkey_consts, pubkey_lit_str};
+
 pub struct DeclareProgramKeysArgs {
-    pub prog_id_str_lit: LitStr,
+    pub prog_id_lit_str: LitStr,
     pub prog_id: Pubkey,
     pub static_pdas: Vec<StaticPdaComputed>,
 }
 
 impl Parse for DeclareProgramKeysArgs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let prog_id_str_lit: LitStr = input.parse()?;
+        let prog_id_lit_str: LitStr = input.parse()?;
+        let (prog_id, prog_id_lit_str) = pubkey_lit_str(prog_id_lit_str)?;
+
         input.parse::<Token![,]>()?;
         let StaticPdaList(entries) = input.parse()?;
 
-        let prog_id = Pubkey::from_str(&prog_id_str_lit.value())
-            .map_err(|e| syn::Error::new(prog_id_str_lit.span(), e))?;
         let static_pdas = entries
             .into_iter()
             .map(|s| StaticPdaComputed::compute(&prog_id, s))
             .collect();
 
         Ok(Self {
-            prog_id_str_lit,
+            prog_id_lit_str,
             prog_id,
             static_pdas,
         })
@@ -114,5 +117,27 @@ impl Parse for StaticPdaList {
             })
             .collect();
         Ok(Self(res?))
+    }
+}
+
+pub fn static_pda_gen(
+    StaticPdaComputed {
+        name,
+        seed,
+        bump,
+        pubkey,
+    }: &StaticPdaComputed,
+) -> proc_macro2::TokenStream {
+    let name_prefix = name.to_shouty_snake_case();
+    let seed_ident = format_ident!("{name_prefix}_SEED");
+    let bump_ident = format_ident!("{name_prefix}_BUMP");
+
+    let bump_lit = LitByte::new(*bump, Span::call_site());
+    let pubkey_consts = gen_pubkey_consts(name, *pubkey);
+
+    quote! {
+        pub const #seed_ident: &[u8] = #seed;
+        pub const #bump_ident: u8 = #bump_lit;
+        #pubkey_consts
     }
 }

@@ -1,14 +1,16 @@
 #![doc = include_str!("../README.md")]
 
-use heck::ToShoutySnakeCase;
+use create_with_seed_args::CreateWithSeedArgs;
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, LitByte, LitStr};
+use syn::parse_macro_input;
 
+mod create_with_seed_args;
 mod declare_program_keys_args;
+mod utils;
 
-use declare_program_keys_args::{DeclareProgramKeysArgs, StaticPdaComputed};
+use declare_program_keys_args::{static_pda_gen, DeclareProgramKeysArgs};
+use utils::{gen_pubkey_consts, gen_pubkey_consts_with_litstr};
 
 // All #[proc_macro] s must reside at root of crate.
 // Signature is (input: proc_macro::TokenStream) -> proc_macro::TokenStream
@@ -17,21 +19,14 @@ use declare_program_keys_args::{DeclareProgramKeysArgs, StaticPdaComputed};
 #[proc_macro]
 pub fn declare_program_keys(input: TokenStream) -> TokenStream {
     let DeclareProgramKeysArgs {
-        prog_id_str_lit,
+        prog_id_lit_str,
         prog_id,
         static_pdas,
     } = parse_macro_input!(input);
     // everything below must be infallible
-
-    let prog_id_bytes = prog_id.to_bytes();
-    let prog_id_lit_bytes = prog_id_bytes
-        .iter()
-        .map(|b| LitByte::new(*b, Span::call_site()));
-
+    let id_consts = gen_pubkey_consts_with_litstr("", prog_id, prog_id_lit_str);
     let mut res = quote! {
-        pub const ID_STR: &str = #prog_id_str_lit;
-        pub const ID_BYTES: [u8; 32] = [#(#prog_id_lit_bytes,)*];
-        pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(ID_BYTES);
+        #id_consts
     };
     for static_pda in static_pdas {
         res.extend(static_pda_gen(&static_pda));
@@ -39,32 +34,27 @@ pub fn declare_program_keys(input: TokenStream) -> TokenStream {
     res.into()
 }
 
-fn static_pda_gen(
-    StaticPdaComputed {
-        name,
-        seed,
-        bump,
+#[proc_macro]
+pub fn create_with_seed(input: TokenStream) -> TokenStream {
+    let CreateWithSeedArgs {
         pubkey,
-    }: &StaticPdaComputed,
-) -> proc_macro2::TokenStream {
-    let name_prefix = name.to_shouty_snake_case();
+        base_lit_str,
+        base,
+        seed_lit_str,
+        owner_lit_str,
+        owner,
+    } = parse_macro_input!(input);
 
-    let id_bytes_ident = format_ident!("{name_prefix}_ID_BYTES");
-    let id_ident = format_ident!("{name_prefix}_ID");
-    let id_str_ident = format_ident!("{name_prefix}_ID_STR");
-    let seed_ident = format_ident!("{name_prefix}_SEED");
-    let bump_ident = format_ident!("{name_prefix}_BUMP");
-
-    let id_bytes = pubkey.to_bytes();
-    let id_lit_bytes = id_bytes.iter().map(|b| LitByte::new(*b, Span::call_site()));
-    let bump_lit = LitByte::new(*bump, Span::call_site());
-    let id_str_lit = LitStr::new(&pubkey.to_string(), Span::call_site());
+    let id_consts = gen_pubkey_consts("", pubkey);
+    let base_consts = gen_pubkey_consts_with_litstr("BASE", base, base_lit_str);
+    let seed_const_ident = format_ident!("SEED");
+    let owner_consts = gen_pubkey_consts_with_litstr("OWNER", owner, owner_lit_str);
 
     quote! {
-        pub const #seed_ident: &[u8] = #seed;
-        pub const #bump_ident: u8 = #bump_lit;
-        pub const #id_bytes_ident: [u8; 32] = [#(#id_lit_bytes,)*];
-        pub const #id_ident: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(#id_bytes_ident);
-        pub const #id_str_ident: &str = #id_str_lit;
+        #id_consts
+        #base_consts
+        pub const #seed_const_ident: &str = #seed_lit_str;
+        #owner_consts
     }
+    .into()
 }
