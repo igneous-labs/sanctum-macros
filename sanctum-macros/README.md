@@ -8,12 +8,14 @@ Inspired by https://github.com/Ellipsis-Labs/ellipsis-macros
 
 ### `declare_program_keys!`
 
-```rust ignore
+```rust
 // first arg = program ID
 // second arg = list of static PDA names and their seeds.
-// Each seed must have a max length of 32 bytes.
-// Max 16 seeds.
-declare_program_keys!(
+//
+// Rules from solana runtime:
+// - Each seed can have a max length of 32 bytes.
+// - Each PDA can have max 16 seeds.
+sanctum_macros::declare_program_keys!(
     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
     [
         ("state", b"state"),
@@ -25,7 +27,7 @@ declare_program_keys!(
 
 expands to
 
-```rust ignore
+```rust
 pub const ID_STR: &str = "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ";
 pub const ID_BYTES: [u8; 32] = [121, 161, 186, 2, 16, 170, 248, 125, 201, 230, 113, 160, 74, 35, 69, 149, 10, 116, 97, 215, 244, 204, 210, 189, 7, 112, 233, 119, 14, 109, 226, 43];
 pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(ID_BYTES);
@@ -57,9 +59,9 @@ pub const MULTISEED_ID_STR: &str = "7dCVGBbemkex9cQNMp17kupcL41jueGXwjSrc2NWf6Ek
 
 Create a `Pubkey` with [`Pubkey::create_with_seed`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_with_seed).
 
-```rust ignore
+```rust
 // args: (base, seed, owner)
-create_with_seed!(
+sanctum_macros::create_with_seed!(
     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
     "seed",
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
@@ -68,7 +70,7 @@ create_with_seed!(
 
 expands to
 
-```rust ignore
+```rust
 // let ID = Pubkey::create_with_seed(&BASE_ID, SEED, OWNER).unwrap();
 pub const ID_BYTES: [u8; 32] = [213, 14, 91, 195, 42, 234, 158, 119, 156, 244, 205, 121, 213, 202, 90, 242, 52, 33, 180, 126, 177, 142, 7, 59, 192, 104, 238, 67, 90, 112, 177, 48];
 pub const ID_STR: &str = "FLgYDs1daqCvXAmz5vqij39zFdSraks4S6xuKvf2NJsZ";

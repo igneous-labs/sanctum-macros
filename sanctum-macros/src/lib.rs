@@ -20,19 +20,21 @@ use utils::{gen_pubkey_consts, gen_pubkey_consts_with_litstr};
 ///
 /// Example:
 ///
-/// ```rust ignore
+/// ```rust
 /// // first arg = program ID
-/// // second arg = list of static PDA names and their seeds
-/// // Each seed must have a max length of 32 bytes.
-/// // Max 16 seeds.
-/// declare_program_keys!(
+/// // second arg = list of static PDA names and their seeds.
+/// //
+/// // Rules from solana runtime:
+/// // - Each seed can have a max length of 32 bytes.
+/// // - Each PDA can have max 16 seeds.
+/// sanctum_macros::declare_program_keys!(
 ///     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
 ///     [
 ///         ("state", b"state"),
 ///         ("empty-kebab", b""),
 ///         ("multiseed", b"two", b"seeds"),
 ///     ]
-/// )
+/// );
 /// ```
 #[proc_macro]
 pub fn declare_program_keys(input: TokenStream) -> TokenStream {
@@ -56,9 +58,9 @@ pub fn declare_program_keys(input: TokenStream) -> TokenStream {
 ///
 /// Example:
 ///
-/// ```rust ignore
+/// ```rust
 /// // args: (base, seed, owner)
-/// create_with_seed!(
+/// sanctum_macros::create_with_seed!(
 ///     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
 ///     "seed",
 ///     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
