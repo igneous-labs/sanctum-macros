@@ -1,21 +1,39 @@
 #![doc = include_str!("../README.md")]
 
-use create_with_seed_args::CreateWithSeedArgs;
+use create_with_seed::CreateWithSeedArgs;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::parse_macro_input;
 
-mod create_with_seed_args;
-mod declare_program_keys_args;
+mod create_with_seed;
+mod declare_program_keys;
 mod utils;
 
-use declare_program_keys_args::{static_pda_gen, DeclareProgramKeysArgs};
+use declare_program_keys::{static_pda_gen, DeclareProgramKeysArgs};
 use utils::{gen_pubkey_consts, gen_pubkey_consts_with_litstr};
 
 // All #[proc_macro] s must reside at root of crate.
 // Signature is (input: proc_macro::TokenStream) -> proc_macro::TokenStream
 // NOT proc_macro2
 
+/// Declare a program ID with static PDAs.
+///
+/// Example:
+///
+/// ```rust ignore
+/// // first arg = program ID
+/// // second arg = list of static PDA names and their seeds
+/// // Each seed must have a max length of 32 bytes.
+/// // Max 16 seeds.
+/// declare_program_keys!(
+///     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
+///     [
+///         ("state", b"state"),
+///         ("empty-kebab", b""),
+///         ("multiseed", b"two", b"seeds"),
+///     ]
+/// )
+/// ```
 #[proc_macro]
 pub fn declare_program_keys(input: TokenStream) -> TokenStream {
     let DeclareProgramKeysArgs {
@@ -34,6 +52,18 @@ pub fn declare_program_keys(input: TokenStream) -> TokenStream {
     res.into()
 }
 
+/// Create a `Pubkey` with [`Pubkey::create_with_seed`](https://docs.rs/solana-program/latest/solana_program/pubkey/struct.Pubkey.html#method.create_with_seed).
+///
+/// Example:
+///
+/// ```rust ignore
+/// // args: (base, seed, owner)
+/// create_with_seed!(
+///     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
+///     "seed",
+///     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+/// );
+/// ````
 #[proc_macro]
 pub fn create_with_seed(input: TokenStream) -> TokenStream {
     let CreateWithSeedArgs {

@@ -2,7 +2,11 @@ use sanctum_macros::declare_program_keys;
 
 declare_program_keys!(
     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
-    [("state", b"state"), ("empty-kebab", b"")]
+    [
+        ("state", b"state"),
+        ("empty-kebab", b""),
+        ("multiseed", b"two", b"seeds"),
+    ]
 );
 
 #[cfg(test)]
@@ -40,5 +44,20 @@ mod tests {
             EMPTY_KEBAB_ID_BYTES,
         );
         assert_ne!(ID, EMPTY_KEBAB_ID);
+    }
+
+    #[test]
+    fn multiseed_check() {
+        assert_eq!(MULTISEED_SEED_0, b"two");
+        assert_eq!(MULTISEED_SEED_1, b"seeds");
+        let (expected_pk, expected_bump) =
+            Pubkey::find_program_address(&[MULTISEED_SEED_0, MULTISEED_SEED_1], &ID);
+        assert_eq!(MULTISEED_BUMP, expected_bump);
+        assert_correct_pubkey_consts(
+            expected_pk,
+            MULTISEED_ID,
+            MULTISEED_ID_STR,
+            MULTISEED_ID_BYTES,
+        );
     }
 }

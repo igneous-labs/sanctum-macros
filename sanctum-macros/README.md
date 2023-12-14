@@ -10,12 +10,15 @@ Inspired by https://github.com/Ellipsis-Labs/ellipsis-macros
 
 ```rust ignore
 // first arg = program ID
-// second arg = list of static PDA names and their seeds
+// second arg = list of static PDA names and their seeds.
+// Each seed must have a max length of 32 bytes.
+// Max 16 seeds.
 declare_program_keys!(
     "9BoN4yBYwH63LFM9fDamaHK62YjM56hWYZqok7MnAakJ",
     [
         ("state", b"state"),
         ("empty-kebab", b""),
+        ("multiseed", b"two", b"seeds"),
     ]
 );
 ```
@@ -41,6 +44,14 @@ pub const EMPTY_KEBAB_BUMP: u8 = 255;
 pub const EMPTY_KEBAB_ID_BYTES: [u8; 32] = [149, 184, 104, 22, 114, 239, 248, 126, 73, 171, 206, 5, 196, 95, 255, 54, 180, 176, 70, 241, 246, 15, 193, 242, 103, 208, 21, 144, 97, 138, 236, 108];
 pub const EMPTY_KEBAB_ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(EMPTY_KEBAB_ID_BYTES);
 pub const EMPTY_KEBAB_ID_STR: &str = "B5SqYyds9eLeX5mK4uycKGgZHft1URCbTzU6LoWhCV63";
+
+// let (MULTISEED_ID, MULTISEED_BUMP) = Pubkey::find_program_address(&[MULTISEED_SEED_0, MULTISEED_SEED_1], &ID);
+pub const MULTISEED_SEED_0: &[u8] = b"two";
+pub const MULTISEED_SEED_1: &[u8] = b"seeds";
+pub const MULTISEED_BUMP: u8 = 255;
+pub const MULTISEED_ID_BYTES: [u8; 32] = [98, 108, 4, 246, 99, 56, 99, 58, 187, 75, 184, 142, 246, 2, 131, 19, 58, 122, 3, 133, 156, 253, 176, 142, 61, 20, 125, 96, 17, 29, 112, 113];
+pub const MULTISEED_ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(MULTISEED_ID_BYTES);
+pub const MULTISEED_ID_STR: &str = "7dCVGBbemkex9cQNMp17kupcL41jueGXwjSrc2NWf6Ek";
 ```
 
 ### `create_with_seed!`
