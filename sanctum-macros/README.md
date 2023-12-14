@@ -71,7 +71,7 @@ sanctum_macros::create_with_seed!(
 expands to
 
 ```rust
-// let ID = Pubkey::create_with_seed(&BASE_ID, SEED, OWNER).unwrap();
+// let ID = Pubkey::create_with_seed(&BASE_ID, SEED, OWNER_ID).unwrap();
 pub const ID_BYTES: [u8; 32] = [213, 14, 91, 195, 42, 234, 158, 119, 156, 244, 205, 121, 213, 202, 90, 242, 52, 33, 180, 126, 177, 142, 7, 59, 192, 104, 238, 67, 90, 112, 177, 48];
 pub const ID_STR: &str = "FLgYDs1daqCvXAmz5vqij39zFdSraks4S6xuKvf2NJsZ";
 pub const ID: solana_program::pubkey::Pubkey = solana_program::pubkey::Pubkey::new_from_array(ID_BYTES);
