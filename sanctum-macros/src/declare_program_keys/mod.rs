@@ -2,7 +2,6 @@ mod gen;
 mod parse;
 
 pub use gen::*;
-pub use parse::*;
 use solana_program::pubkey::Pubkey;
 use syn::{LitByteStr, LitStr};
 
