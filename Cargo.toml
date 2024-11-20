@@ -7,7 +7,7 @@ members = ["examples", "sanctum-macros"]
 heck = ">=0.4,<0.6"
 proc-macro2 = "^1"
 quote = "^1"
-solana-program = "^1"
+solana-program = ">=1"
 syn = "^2"
 
 # workspace members
